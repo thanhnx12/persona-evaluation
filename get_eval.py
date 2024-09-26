@@ -33,7 +33,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Get evaluation role bench')
     parser.add_argument('--base_url', type=str, help='The base url of the api', default='https://api.together.xyz/v1')
     # parser.add_argument('--api_key', type=str, help='The api key', default=TOGETHER_API_KEY)
-    parser.add_argument('--eval_model', type=str, help='The model to use for evaluation', default='meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo')
+    parser.add_argument('--eval_model_1', type=str, help='The model to use for evaluation', default='meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo')
+    parser.add_argument('--eval_model_2', type=str, help='The model to use for evaluation', default='NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO')
+    
     parser.add_argument('--model_response_path', type=str, help='The path to the model response', default='./model_outputs/response.json')
     parser.add_argument('--output_dir', type=str, help='The output directory', default='./evaluation_outputs')
     parser.add_argument('--output_file_name', type=str, help='The output file name', default='result.json')
@@ -55,15 +57,28 @@ if __name__ == "__main__":
         os.makedirs(args.output_dir)
     
     # Start evaluation
-    evaluation_results = []
-    for idx, sample in enumerate(model_response):
+    evaluation_results_1 = []
+    for idx, sample in enumerate(model_response[:len(model_response)//2]):
         persona = fill_template(sample['role'], profiles[sample['role']])
         question = sample['question']
         response = sample['response']
         reference = sample['reference']
-        result = evaluate_with_reference_v2(question, persona, response, reference, model=args.eval_model)
+        result = evaluate_with_reference_v2(question, persona, response, reference, model=args.eval_model_1)
+        result['eval_model'] = args.eval_model_1
         print(f"Name: {sample['role']}, Index: {idx}, Result: {result}")
-        evaluation_results.append(result)
+        evaluation_results_1.append(result)
+    
+    evaluation_results_2 = []
+    for idx, sample in enumerate(model_response[len(model_response)//2:]):
+        persona = fill_template(sample['role'], profiles[sample['role']])
+        question = sample['question']
+        response = sample['response']
+        reference = sample['reference']
+        result = evaluate_with_reference_v2(question, persona, response, reference, model=args.eval_model_2)
+        result['eval_model'] = args.eval_model_2
+        print(f"Name: {sample['role']}, Index: {idx}, Result: {result}")
+        evaluation_results_2.append(result)
+    evaluation_results = evaluation_results_1 + evaluation_results_2
     
     # Save the evaluation results
     with open(os.path.join(args.output_dir, args.output_file_name), 'w') as f:
