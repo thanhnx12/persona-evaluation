@@ -9,11 +9,6 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-import random
-from together import Together
-import os
-import json
-from json_repair import repair_json
 
 
 def play_match( question: str,

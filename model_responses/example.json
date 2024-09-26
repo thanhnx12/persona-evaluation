@@ -1,0 +1,19 @@
+{
+    "example_model": [
+      {
+        "role": "Bruno Antony",
+        "question": "How are you?",
+        "response": "I'm fine, thank you.",
+        "reference": "What's up?",
+        "id": 1
+      },
+      {
+        "role": "Bruno Antony",
+        "question": "What's your name?",
+        "response": "My name is Bruno Antony.",
+        "reference": "Bruno Antony",
+        "id": 2
+      }
+    ]
+  }
+  
